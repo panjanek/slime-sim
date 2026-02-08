@@ -57,9 +57,10 @@ namespace SlimeSim.Models
             shaderConfig = new ShaderConfig();
             agents = new Agent[shaderConfig.agentsCount];
             InitRandomly();
-            kernelRed = MathUtil.Normalize(Blurs.AvailableKernels["Default"], decayRed);
-            kernelGreen = MathUtil.Normalize(Blurs.AvailableKernels["Default"], decayGreen);
-            kernelBlue = MathUtil.Normalize(Blurs.AvailableKernels["Default"], decayBlue);
+            var blurType = "Default"; //"Strong"; //"Default";
+            kernelRed = MathUtil.Normalize(Blurs.AvailableKernels[blurType], decayRed);
+            kernelGreen = MathUtil.Normalize(Blurs.AvailableKernels[blurType], decayGreen);
+            kernelBlue = MathUtil.Normalize(Blurs.AvailableKernels[blurType], decayBlue);
         }
 
         public Simulation(StartNewSimulationParameters parameters)
@@ -98,7 +99,7 @@ namespace SlimeSim.Models
                 agents[i] = new Agent();
                 agents[i].flag = 1;
                 agents[i].type = rnd.Next(3);
-                agents[i].type = 0;
+                //agents[i].type = 0;
                 agents[i].angle = (float)(2 * Math.PI * rnd.NextDouble());
                 agents[i].SetPosition(new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble())));
             }

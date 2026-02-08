@@ -141,7 +141,7 @@ float[9] prepare_input(Agent agent)
 {
     float inp[9];
 
-    float angles[3] = float[] ( -0.15*M_PI , 0, +0.15*M_PI );
+    float angles[3] = float[] ( -0.25*M_PI , 0, +0.25*M_PI );
     for(int a=0; a<3; a++)
     {
         vec3 sensor = sense(agent, angles[a], 3, 1);
@@ -162,13 +162,26 @@ void update_one(uint idx)
 
 
     float angleDelta = 0;
-    if (agent.type == 0)
+
+    for(int t=0; t<3; t++)
     {
-        float left =    inp[0 + 0];
-        float front =   inp[3 + 0];
-        float right =   inp[6 + 0];
-        angleDelta = 2*(right-left);
+        float left =    inp[0 + t];
+        float front =   inp[3 + t];
+        float right =   inp[6 + t];
+
+       
+
+        if (agent.type == t)
+            angleDelta += tanh((right-left)*2)*1.0;
+        else 
+            angleDelta += tanh((right-left)*-2)*1.0;
     }
+
+
+    float random01 = get_random_float_01(agent, 100037);
+    float random0 = (0.5 - random01);
+
+    angleDelta += 0.05 * random0;
 
     //angle
     agent.angle += angleDelta;
