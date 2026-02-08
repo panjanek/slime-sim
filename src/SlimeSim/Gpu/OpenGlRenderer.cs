@@ -172,37 +172,29 @@ namespace SlimeSim.Gpu
             if (Stopped)
                 return;
 
-            if (!app.configWindow.MaxSpeed || frameCounter % 50 == 0)
-            {
-                Follow();
+            Follow();
 
-                //clear
-                GL.Viewport(0, 0, glControl.Width, glControl.Height);
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-                GL.ClearColor(0f, 0f, 0f, 1f);
-                GL.Clear(ClearBufferMask.ColorBufferBit);
+            //clear
+            GL.Viewport(0, 0, glControl.Width, glControl.Height);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.ClearColor(0f, 0f, 0f, 1f);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
 
-                float halfW = glControl.Width / zoom * 0.5f;
-                float halfH = glControl.Height / zoom * 0.5f;
-                Vector2 min = center - new Vector2(halfW, halfH);
-                Vector2 max = center + new Vector2(halfW, halfH);
+            float halfW = glControl.Width / zoom * 0.5f;
+            float halfH = glControl.Height / zoom * 0.5f;
+            Vector2 min = center - new Vector2(halfW, halfH);
+            Vector2 max = center + new Vector2(halfW, halfH);
 
-                displayProgram.Draw(app.simulation,
-                                    GetProjectionMatrix(),
-                                    solverProgram.AgentsBuffer,
-                                    solverProgram.GreenTex,
-                                    solverProgram.BlueTex,
-                                    solverProgram.RedTex,
-                                    min, max, zoom,
-                                    app.configWindow.ShowPointers);
+            displayProgram.Draw(app.simulation,
+                                GetProjectionMatrix(),
+                                solverProgram.AgentsBuffer,
+                                solverProgram.GreenTex,
+                                solverProgram.BlueTex,
+                                solverProgram.RedTex,
+                                min, max, zoom,
+                                app.configWindow.ShowPointers);
 
-                glControl.SwapBuffers();
-
-                if (app.configWindow.ShowMemory && frameCounter % 5 == 0)
-                    app.configWindow.SetMemoryBars(tracked);
-            }
-
-
+            glControl.SwapBuffers();
             frameCounter++;
             Capture();
         }
@@ -221,8 +213,6 @@ namespace SlimeSim.Gpu
                 tracked = solverProgram.DownloadTrackedAgent();
 
                 app.simulation.step++;
-                if (app.simulation.step % app.simulation.shaderConfig.generationDuration == 0 && app.configWindow.Evolve)
-                    app.NextGeneration();
             }
 
             glControl.Invalidate();

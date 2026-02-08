@@ -167,45 +167,6 @@
                     <ComboBoxItem Tag="2000">Show 2000</ComboBoxItem>
                 </ComboBox>
 
-                <!-- graph + series selector -->
-                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="10"> 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <local:FunctionGraph x:Name="statsGraph" Grid.Row="0" Grid.Column="0"/>
-                    <ListBox Name="seriesList" Grid.Row="0" Grid.Column="1" SelectionMode="Single" Background="Black">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="IsSelected" Value="False"/>
-                                <Setter Property="Focusable" Value="False"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Click="SeriesCheckBox_Click" Content="{Binding Name}" Width="100" Foreground="White" />
-                                    <Line X1="0"
-                                      Y1="0"
-                                      X2="60"
-                                      Y2="0"
-                                      Margin="8,0,0,0"
-                                      VerticalAlignment="Center"
-                                      Stroke="{Binding Style.Stroke}"
-                                      StrokeThickness="{Binding Style.StrokeThickness}"
-                                      StrokeDashArray="{Binding Style.StrokeDashArray}"
-                                      StrokeDashCap ="{Binding Style.LineCap}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-                
             </Grid>
         </DockPanel>
     </Border>

@@ -39,12 +39,10 @@ namespace SlimeSim.Models
             string json = fn.EndsWith(".gz") ? GzipUtil.Decompress(File.ReadAllBytes(fn)) : File.ReadAllText(fn);
             renderer.Stopped = true;
             simulation = SerializationUtil.DeserializeFromJson(json);
-            simulation.InitAfterLoad();
             configWindow.SetControls();
             renderer.UploadAgents();
             renderer.ClearTextures();
             renderer.Stopped = false;
-            configWindow.DrawStats(simulation.stats);
         }
 
         public void Save(string fn)
@@ -66,23 +64,6 @@ namespace SlimeSim.Models
             renderer.UploadAgents();
             renderer.ClearTextures();
             renderer.Stopped = false;
-            configWindow.ClearStats();
-        }
-
-        public void DrawStats()
-        {
-            if (simulation.stats.Count > 2)
-            {
-                WpfUtil.DispatchRender(configWindow.Dispatcher, () => configWindow.DrawStats(simulation.stats));
-            }
-        }
-
-        public void NextGeneration()
-        {
-            renderer.DownloadAgents();
-            simulation.ChangeEpoch();
-            DrawStats();
-            renderer.UploadAgents();
         }
     }
 }

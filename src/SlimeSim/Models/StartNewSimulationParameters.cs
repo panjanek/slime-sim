@@ -33,8 +33,6 @@ namespace SlimeSim.Models
 
         public float redMaxVelocity = 0.5f;
 
-        public FitnessFunctionConfig fitnessConfig = new FitnessFunctionConfig();
-
         [JsonIgnore]
         public bool fixedSeed = true;
 

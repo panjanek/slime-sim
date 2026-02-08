@@ -116,32 +116,21 @@ namespace SlimeSim
 
         private void InfoTimer_Tick(object? sender, EventArgs e)
         {
-            systemTimer.Interval = app.configWindow?.MaxSpeed == true ? 0.1 : 5;
-
             var now = DateTime.Now;
             var timespan = now - lastCheckTime;
             double frames = app.renderer.FrameCounter - lastCheckFrameCount;
             double steps = app.simulation.step - lastChechStepCount;
             if (timespan.TotalSeconds >= 0.0001)
             {
-                var blueMealsPerAge = app.simulation.stats.Count == 0 ? 0 : 100 * app.simulation.stats.Max(s => s.topBlueMealsPerAge);
-                var redMealsPerAge = app.simulation.stats.Count == 0 ? 0 : 100 * app.simulation.stats.Max(s => s.topRedMealsPerAge);
-
-                var blueFitness = app.simulation.stats.Count == 0 ? 0 : 100 * app.simulation.stats.Max(s => s.topBlueMedFitness);
-                var redFitness = app.simulation.stats.Count == 0 ? 0 : 100 * app.simulation.stats.Max(s => s.topRedMedFitness);
 
                 double fps = frames / timespan.TotalSeconds;
                 double sps = steps / timespan.TotalSeconds;
-                Title = $"Predator Prey Sim. " +
+                Title = $"Slime Sim. " +
                         $"fps:{fps.ToString("0.0")} " +
                         $"sps:{sps.ToString("0.0")} " +
                         $"config:{app.simulation.shaderConfig.width}x{app.simulation.shaderConfig.height}/{app.simulation.shaderConfig.agentsCount} " +
                         $"step:{app.simulation.step} " +
-                        $"gen:{app.simulation.generation} " +
-                        $"blue meals: {blueMealsPerAge.ToString("0.000")} " +
-                        $"red meals: {redMealsPerAge.ToString("0.000")} " +
-                        $"blue fitness: {blueFitness.ToString("0.0")} " +
-                        $"red fitness: {redFitness.ToString("0.0")} ";
+                        $"gen:{app.simulation.generation} ";
 
                 if (!string.IsNullOrWhiteSpace(app.configWindow.RecordDir))
                 {

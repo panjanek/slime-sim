@@ -38,26 +38,6 @@ namespace SlimeSim.Gui
             return line;
         }
 
-        public static Line AddStyledLine(Canvas canvas, double x1, double y1, double x2, double y2, SeriesStyle style, object tag = null, int? zIndex = null)
-        {
-            try
-            {
-                Line line = AddLine(canvas, x1, y1, x2, y2, style.StrokeThickness, style.Stroke, tag, zIndex);
-                if (style.StrokeDashArray != null)
-                    line.StrokeDashArray = style.StrokeDashArray;
-                line.StrokeDashCap = style.LineCap;
-                if (zIndex.HasValue)
-                    line.SetValue(Canvas.ZIndexProperty, zIndex.Value);
-                if (tag != null)
-                    line.Tag = tag;
-                return line;
-            }
-            catch (Exception x)
-            {
-                throw x;
-            }
-        }
-
         public static Ellipse AddEllipse(Canvas canvas, double left, double top, double width, double height, double thickness, Brush stroke, Brush fill, object tag = null, int? zIndex = null)
         {
             Ellipse el = new Ellipse() { Fill = fill, Stroke = stroke, StrokeThickness = thickness, Width = width, Height = height };
