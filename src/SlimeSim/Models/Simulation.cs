@@ -27,11 +27,11 @@ namespace SlimeSim.Models
 
         public float[] kernelBlue;
 
-        public float decayRed = 0.99f;
+        public float decayRed = 0.98f;
 
-        public float decayGreen = 0.99f;
+        public float decayGreen = 0.98f;
 
-        public float decayBlue = 0.994f;
+        public float decayBlue = 0.98f;
 
         public int step;
 
@@ -56,10 +56,10 @@ namespace SlimeSim.Models
         {
             shaderConfig = new ShaderConfig();
             agents = new Agent[shaderConfig.agentsCount];
-            InitRandomly(0.6, 0.1);
-            kernelRed = MathUtil.Normalize(Blurs.AvailableKernels["Strong"], decayRed);
-            kernelGreen = MathUtil.Normalize(Blurs.AvailableKernels["Strong"], decayGreen);
-            kernelBlue = MathUtil.Normalize(Blurs.AvailableKernels["Strong"], decayBlue);
+            InitRandomly();
+            kernelRed = MathUtil.Normalize(Blurs.AvailableKernels["Default"], decayRed);
+            kernelGreen = MathUtil.Normalize(Blurs.AvailableKernels["Default"], decayGreen);
+            kernelBlue = MathUtil.Normalize(Blurs.AvailableKernels["Default"], decayBlue);
         }
 
         public Simulation(StartNewSimulationParameters parameters)
@@ -82,13 +82,13 @@ namespace SlimeSim.Models
             startedWith = parameters;
             agents = new Agent[shaderConfig.agentsCount];
             rnd = parameters.fixedSeed ? new Random(1) : new Random();
-            InitRandomly(parameters.plantsRatio, parameters.predatorsRatio);
+            InitRandomly();
             kernelRed = MathUtil.Normalize(Blurs.AvailableKernels["Strong"], decayRed);
             kernelGreen = MathUtil.Normalize(Blurs.AvailableKernels["Strong"], decayGreen);
             kernelBlue = MathUtil.Normalize(Blurs.AvailableKernels["Strong"], decayBlue);
         }
 
-        private void InitRandomly(double plants, double predators)
+        private void InitRandomly()
         {
             int networksCount = 0;
             for (int i = 0; i < agents.Length; i++)
@@ -98,6 +98,7 @@ namespace SlimeSim.Models
                 agents[i] = new Agent();
                 agents[i].flag = 1;
                 agents[i].type = rnd.Next(3);
+                agents[i].type = 0;
                 agents[i].angle = (float)(2 * Math.PI * rnd.NextDouble());
                 agents[i].SetPosition(new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble())));
             }

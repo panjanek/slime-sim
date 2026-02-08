@@ -127,7 +127,6 @@ namespace SlimeSim
                 double sps = steps / timespan.TotalSeconds;
                 Title = $"Slime Sim. " +
                         $"fps:{fps.ToString("0.0")} " +
-                        $"sps:{sps.ToString("0.0")} " +
                         $"config:{app.simulation.shaderConfig.width}x{app.simulation.shaderConfig.height}/{app.simulation.shaderConfig.agentsCount} " +
                         $"step:{app.simulation.step} " +
                         $"gen:{app.simulation.generation} ";

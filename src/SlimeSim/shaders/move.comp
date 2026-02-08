@@ -137,43 +137,19 @@ vec3 sense(Agent agent, float sensorAngle, float sensorDist, int sensorSize)
     return sum / (r*r);
 }
 
-float[19] prepare_input(Agent agent)
+float[9] prepare_input(Agent agent)
 {
-    float inp[19];
+    float inp[9];
 
-    if (agent.type == 1) //prey
+    float angles[3] = float[] ( -0.15*M_PI , 0, +0.15*M_PI );
+    for(int a=0; a<3; a++)
     {
-        float angles[5] = float[] ( -0.15*M_PI , 0, +0.15*M_PI, -0.75*M_PI, +0.75*M_PI );
-        for(int a=0; a<5; a++)
-        {
-            vec3 sensor = sense(agent, angles[a], 3, 1);
-            inp[a*3+0] = sensor.r;
-            inp[a*3+1] = sensor.g;
-            inp[a*3+2] = sensor.b * 0.5;    //other prey scent, less important for prey
-        }
-
-        inp[15] = inp[2*3+0] - inp[0*3+0];  // difference between forward-right and forward-left predator scent
-        inp[16] = inp[4*3+0] - inp[3*3+0];  // difference between right and left predator scent
-    }
-    else //predator
-    {
-        float angles[5] = float[] ( -0.075*M_PI , 0, +0.075*M_PI, -0.5*M_PI, +0.5*M_PI );
-        for(int a=0; a<5; a++)
-        {
-            vec3 sensor = sense(agent, angles[a], 4, 1);
-            inp[a*3+0] = sensor.r * 0.15;  // other predator scent - not important for predators
-            inp[a*3+1] = sensor.g * 0.3;   // plants scent - slightly important for predators
-            inp[a*3+2] = sensor.b;
-        }
-
-         inp[15] = inp[2*3+2] - inp[0*3+2];   // difference between forward-right and forward-left prey scent
-         inp[16] = inp[4*3+2] - inp[3*3+2];   // difference between right and left prey scent
+        vec3 sensor = sense(agent, angles[a], 3, 1);
+        inp[a*3+0] = sensor.g;
+        inp[a*3+1] = sensor.b;
+        inp[a*3+2] = sensor.r;
     }
 
-    inp[15] = clamp(inp[15], -1.0, 1.0);
-    inp[16] = clamp(inp[16], -1.0, 1.0);
-    inp[17] = agent.memory0;
-    inp[18] = agent.memory1;
     return inp;
 }
 
@@ -183,15 +159,23 @@ void update_one(uint idx)
 
 
     float[] inp = prepare_input(agent);
-        
+
+
+    float angleDelta = 0;
+    if (agent.type == 0)
+    {
+        float left =    inp[0 + 0];
+        float front =   inp[3 + 0];
+        float right =   inp[6 + 0];
+        angleDelta = 2*(right-left);
+    }
 
     //angle
-    agent.angle +=0;
+    agent.angle += angleDelta;
     agent.angle = mod(agent.angle + M_PI, 2*M_PI) - M_PI;
 
-    //velocity
-    float maxVelocity = agent.type == 1 ? config.blueMaxVelocity : config.redMaxVelocity;
-    float velocity = maxVelocity;
+
+    float velocity = 0.5;
     agent.position += vec2(velocity*cos(agent.angle),velocity*sin(agent.angle));
     
 
