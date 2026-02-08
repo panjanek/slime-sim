@@ -25,10 +25,6 @@ namespace SlimeSim.Gpu
 
         private int markHeadProgram;
 
-        private int markTailProgram;
-
-        private int collisionsProgram;
-
         private int configBuffer;
 
         private int agentsBuffer;
@@ -88,9 +84,7 @@ namespace SlimeSim.Gpu
         public SolverProgram()
         {
             moveProgram = ShaderUtil.CompileAndLinkComputeShader("move.comp");
-            markTailProgram = ShaderUtil.CompileAndLinkComputeShader("mark_tail.comp");
             markHeadProgram = ShaderUtil.CompileAndLinkComputeShader("mark_head.comp");
-            collisionsProgram = ShaderUtil.CompileAndLinkComputeShader("collision.comp");
             GpuUtil.CreateBuffer(ref configBuffer, 1, Marshal.SizeOf<ShaderConfig>());
 
             blurProgram = ShaderUtil.CompileAndLinkRenderShader("blur.vert", "blur.frag");
@@ -139,26 +133,7 @@ namespace SlimeSim.Gpu
                 GL.MemoryBarrier(MemoryBarrierFlags.ShaderStorageBarrierBit);
 
                 // ---------------------- mark agent position on texture -----------------------
-                GL.UseProgram(markTailProgram);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, configBuffer);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, agentsBuffer);
-                GL.BindImageTexture(2, greenTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-                GL.BindImageTexture(3, blueTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-                GL.BindImageTexture(4, redTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-                GL.DispatchCompute(DispatchGroupsX(config.agentsCount), 1, 1);
-                GL.MemoryBarrier(MemoryBarrierFlags.ShaderStorageBarrierBit);
-
                 GL.UseProgram(markHeadProgram);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, configBuffer);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, agentsBuffer);
-                GL.BindImageTexture(2, greenTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-                GL.BindImageTexture(3, blueTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-                GL.BindImageTexture(4, redTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);
-                GL.DispatchCompute(DispatchGroupsX(config.agentsCount), 1, 1);
-                GL.MemoryBarrier(MemoryBarrierFlags.ShaderStorageBarrierBit);
-
-                // ---------------------- colisions -----------------------
-                GL.UseProgram(collisionsProgram);
                 GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, configBuffer);
                 GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, agentsBuffer);
                 GL.BindImageTexture(2, greenTexA, 0, false, 0, TextureAccess.ReadWrite, SizedInternalFormat.Rgba32f);

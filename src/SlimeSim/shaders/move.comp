@@ -137,13 +137,9 @@ vec3 sense(Agent agent, float sensorAngle, float sensorDist, int sensorSize)
     return sum / (r*r);
 }
 
-const int NN_INPUTS = 19;
-const int NN_HIDDEN = 12;
-const int NN_OUTPUTS = 4;
-
-float[NN_INPUTS] prepare_input(Agent agent)
+float[19] prepare_input(Agent agent)
 {
-    float inp[NN_INPUTS];
+    float inp[19];
 
     if (agent.type == 1) //prey
     {
@@ -181,91 +177,27 @@ float[NN_INPUTS] prepare_input(Agent agent)
     return inp;
 }
 
-float activate(float x)
-{
-    return tanh(x);
-}
-
-float[NN_OUTPUTS] evaluate_network(float inp[NN_INPUTS], int offset)
-{
-    // Hidden layer
-    float hidden[NN_HIDDEN];
-    for (int h = 0; h < NN_HIDDEN; ++h)
-    {
-        float sum = network[offset+(NN_INPUTS*NN_HIDDEN)+h];
-        for (int i = 0; i < NN_INPUTS; ++i)
-            sum += inp[i] * network[offset+h*NN_INPUTS+i];
-
-        hidden[h] = activate(sum);
-    }
-
-    // Output layer
-    float result[NN_OUTPUTS];
-    for (int o = 0; o < NN_OUTPUTS; ++o)
-    {
-        float sum = network[offset+(NN_INPUTS*NN_HIDDEN + NN_HIDDEN + NN_HIDDEN*NN_OUTPUTS)+o];
-        for (int h = 0; h < NN_HIDDEN; ++h)
-            sum += hidden[h] * network[offset+(NN_INPUTS*NN_HIDDEN + NN_HIDDEN)+o*NN_HIDDEN+h];
-
-        result[o] = activate(sum);
-    }
-
-
-    return result;
-}
-
 void update_one(uint idx)
 {
     Agent agent = agents[idx];
 
-    agent.age += 1;
-    agent.survivalDuration += 1;
-    if (agent.type == 0 && agent.state == 1 && agent.age > 0)
-        agent.state = 0;
-       
-    agents[idx] = agent;
-    if (agent.state == 1)
-        return;
 
-    if (agent.type > 0)
-    {
-        float[] inp = prepare_input(agent);
-        float[] res = evaluate_network(inp, agent.nnOffset);
+    float[] inp = prepare_input(agent);
+        
 
-        //angle
-        agent.angle += 0.2 * res[0];
-        agent.angle = mod(agent.angle + M_PI, 2*M_PI) - M_PI;
+    //angle
+    agent.angle +=0;
+    agent.angle = mod(agent.angle + M_PI, 2*M_PI) - M_PI;
 
-        //velocity
-        float maxVelocity = agent.type == 1 ? config.blueMaxVelocity : config.redMaxVelocity;
-        float velocity = maxVelocity * 0.5 * (res[1] + 1);
-        agent.position += vec2(velocity*cos(agent.angle),velocity*sin(agent.angle));
-
-        //memory
-        agent.memory0 = mix(agent.memory0, res[2], 0.08); //faster memory
-        agent.memory0 = clamp(agent.memory0, -1.0, 1.0);
-        agent.memory1 = mix(agent.memory1, res[3], 0.02); //slower memory
-        agent.memory1 = clamp(agent.memory1, -1.0, 1.0);
-
-        float energyConsumed = (velocity / maxVelocity) * (velocity / maxVelocity);
-        agent.energy -= energyConsumed;
-        agent.energySpent += energyConsumed;
-    }
+    //velocity
+    float maxVelocity = agent.type == 1 ? config.blueMaxVelocity : config.redMaxVelocity;
+    float velocity = maxVelocity;
+    agent.position += vec2(velocity*cos(agent.angle),velocity*sin(agent.angle));
     
+
+
     torus(agent.position);
-    ivec2 newPixel = ivec2(uint(agent.position.x), uint(agent.position.y));
-    if (newPixel != agent.currPixel)
-    {
-        agent.prevPixel = agent.currPixel;
-        agent.currPixel = newPixel;
-    }
-
-    if (agent.type == 2)
-    {
-        float preyScent = imageLoad(inBlue, agent.currPixel).r;
-        agent.nearPrey += preyScent * preyScent;
-    }
-
+    agent.currPixel = ivec2(uint(agent.position.x), uint(agent.position.y));
     agents[idx] = agent;
 
 }

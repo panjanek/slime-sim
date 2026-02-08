@@ -60,13 +60,6 @@ void main()
     gl_PointSize = baseSize * zoom;
 
     flag = agent.flag;
-    if (agent.state == 1 || agent.type == 0)
-    {
-        flag = 0;
-        gl_PointSize = 0;
-        vColor = vec3(0,0,0);
-    }
-
     pointSize = gl_PointSize;
     angle = agent.angle;
     type = agent.type;

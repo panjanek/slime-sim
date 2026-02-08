@@ -59,8 +59,6 @@ layout(rgba32f, binding = 4) uniform image2D outRed;
 void update_one(uint idx)
 {
     Agent agent = agents[idx];
-    if (agent.state == 1)
-        return;
 
     if (agent.type == 0)
         imageStore(outGreen, agent.currPixel, vec4(1)); 

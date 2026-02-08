@@ -66,14 +66,18 @@ void main()
 
         vec4 baseColor = flag == 1 ? vec4(vColor, 1.0) :  vec4(0);
         vec4 rimColor  = vec4(1.0, 1.0, 1.0, 1.0);
-        //vec4 rimColor  = flag == 3 ? vec4(vColor, 1.0) : vec4(1);
 
         outputColor = mix(baseColor, rimColor, rim);
         outputColor.a *= alpha;
     }
 
-    //vec4 pointerColor = vec4(1.0);
-    vec4 pointerColor = type == 1 ? vec4(0.8,0.8,1,1) : vec4(1,0.8,0.8,1);
+    float brightness = 0.8;
+    vec4 pointerColor = vec4(brightness ,1, brightness, 1);
+    if (type == 1)
+        pointerColor = vec4(brightness, brightness, 1, 1);
+    else if (type == 2)
+        pointerColor = vec4(1, brightness, brightness, 1);
+
     float pointerSize = 1;
     if (flag == 2) pointerSize = 0.66;
     if (flag == 3) pointerSize = 0.5;

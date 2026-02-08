@@ -19,8 +19,6 @@
     <EmbeddedResource Include="shaders\blur.vert" />
     <EmbeddedResource Include="shaders\display.frag" />
     <EmbeddedResource Include="shaders\display.vert" />
-    <EmbeddedResource Include="shaders\collision.comp" />
-    <EmbeddedResource Include="shaders\mark_tail.comp" />
     <EmbeddedResource Include="shaders\mark_head.comp" />
     <EmbeddedResource Include="shaders\points.frag" />
     <EmbeddedResource Include="shaders\points.vert" />
