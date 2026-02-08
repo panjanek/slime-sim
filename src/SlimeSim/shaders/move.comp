@@ -1,0 +1,283 @@
+﻿#version 430 core
+
+#pragma optimize(on)
+
+layout(local_size_x = {LocalSizeX}) in;
+
+struct ShaderConfig {
+    int agentsCount;
+    int width;
+    int height;
+    float dt;
+    float t;
+    int generationDuration;
+    float initialEnergy;
+    float plantEnergy;
+    float killEnergy;
+    int plantRegrowDuration;
+    int trackedIdx;
+    float blueMaxVelocity;
+    float redMaxVelocity;
+    int pad0;
+    int pad1;
+    int pad2;
+};
+
+struct Agent
+{
+    vec2 position;
+    float angle;
+    uint type;
+    float energy;
+    uint age;
+    int state;
+    int nnOffset;
+    int meals;
+    int deaths;
+    float energySpent;
+    int flag;
+    ivec2 currPixel;
+    ivec2 prevPixel;
+    float memory0;
+    float memory1;
+    float nearPrey;
+    uint survivalDuration;
+};
+
+layout(std430, binding = 0) buffer ConfigBuffer {
+    ShaderConfig config;
+};
+
+layout(std430, binding = 1) buffer AgentsBuffer {
+    Agent agents[];
+};
+
+layout(rgba32f, binding = 2) uniform image2D inGreen;
+layout(rgba32f, binding = 3) uniform image2D inBlue;
+layout(rgba32f, binding = 4) uniform image2D inRed;
+
+layout(std430, binding = 5) buffer NetworkBuffer {
+    float network[];
+};
+
+layout(std430, binding = 6) writeonly buffer TrackingBuffer
+{
+    Agent tracked;
+};
+
+const float M_PI        = 3.14159265358979323846;
+
+void torus(inout vec2 pos)
+{
+    if (pos.x > config.width)
+        pos.x -= config.width;
+    else if (pos.x < 0)
+        pos.x += config.width;
+
+    if (pos.y > config.height)
+        pos.y -= config.height;
+    else if (pos.y < 0)
+        pos.y += config.height;
+}
+
+void itorus(inout ivec2 pos)
+{
+    if (pos.x > config.width)
+        pos.x -= config.width;
+    else if (pos.x < 0)
+        pos.x += config.width;
+
+    if (pos.y > config.height)
+        pos.y -= config.height;
+    else if (pos.y < 0)
+        pos.y += config.height;
+}
+
+uint hash(uint state)
+{
+    state ^= 2747636419u;
+    state *= 2654435769u;
+    state ^= state >> 16;
+    state *= 2654435769u;
+    state ^= state >> 16;
+    state *= 2654435769u;
+    return state;
+}
+
+float scaleToRange01(uint state)
+{
+    return state / 4294967295.0;
+}
+
+float get_random_float_01(Agent agent, uint seed)
+{
+     uint random = hash(uint(agent.position.y * config.width + agent.position.x) + hash(gl_GlobalInvocationID.x + int(config.t) * seed));
+     float random01 = scaleToRange01(random);
+     return random01;
+}
+
+vec3 sense(Agent agent, float sensorAngle, float sensorDist, int sensorSize)
+{
+    float sensingAngle = agent.angle + sensorAngle;
+    vec2 sensingDir = vec2(cos(sensingAngle),sin(sensingAngle));
+    vec2 sensingCenter = agent.position + sensingDir * sensorDist;
+    ivec2 center = ivec2(int(sensingCenter.x),int(sensingCenter.y));
+    vec3 sum = vec3(0,0,0);
+    for(int offsetX=-sensorSize; offsetX <= sensorSize; offsetX++)
+        for(int offsetY=-sensorSize; offsetY <= sensorSize; offsetY++)
+        {
+            ivec2 sensePixel = center + ivec2(offsetX, offsetY);
+            itorus(sensePixel);
+            sum.r += imageLoad(inRed, sensePixel).r;
+            sum.g += imageLoad(inGreen, sensePixel).r;
+            sum.b += imageLoad(inBlue, sensePixel).r;
+        }
+
+    uint r = 2*sensorSize+1;
+    return sum / (r*r);
+}
+
+const int NN_INPUTS = 19;
+const int NN_HIDDEN = 12;
+const int NN_OUTPUTS = 4;
+
+float[NN_INPUTS] prepare_input(Agent agent)
+{
+    float inp[NN_INPUTS];
+
+    if (agent.type == 1) //prey
+    {
+        float angles[5] = float[] ( -0.15*M_PI , 0, +0.15*M_PI, -0.75*M_PI, +0.75*M_PI );
+        for(int a=0; a<5; a++)
+        {
+            vec3 sensor = sense(agent, angles[a], 3, 1);
+            inp[a*3+0] = sensor.r;
+            inp[a*3+1] = sensor.g;
+            inp[a*3+2] = sensor.b * 0.5;    //other prey scent, less important for prey
+        }
+
+        inp[15] = inp[2*3+0] - inp[0*3+0];  // difference between forward-right and forward-left predator scent
+        inp[16] = inp[4*3+0] - inp[3*3+0];  // difference between right and left predator scent
+    }
+    else //predator
+    {
+        float angles[5] = float[] ( -0.075*M_PI , 0, +0.075*M_PI, -0.5*M_PI, +0.5*M_PI );
+        for(int a=0; a<5; a++)
+        {
+            vec3 sensor = sense(agent, angles[a], 4, 1);
+            inp[a*3+0] = sensor.r * 0.15;  // other predator scent - not important for predators
+            inp[a*3+1] = sensor.g * 0.3;   // plants scent - slightly important for predators
+            inp[a*3+2] = sensor.b;
+        }
+
+         inp[15] = inp[2*3+2] - inp[0*3+2];   // difference between forward-right and forward-left prey scent
+         inp[16] = inp[4*3+2] - inp[3*3+2];   // difference between right and left prey scent
+    }
+
+    inp[15] = clamp(inp[15], -1.0, 1.0);
+    inp[16] = clamp(inp[16], -1.0, 1.0);
+    inp[17] = agent.memory0;
+    inp[18] = agent.memory1;
+    return inp;
+}
+
+float activate(float x)
+{
+    return tanh(x);
+}
+
+float[NN_OUTPUTS] evaluate_network(float inp[NN_INPUTS], int offset)
+{
+    // Hidden layer
+    float hidden[NN_HIDDEN];
+    for (int h = 0; h < NN_HIDDEN; ++h)
+    {
+        float sum = network[offset+(NN_INPUTS*NN_HIDDEN)+h];
+        for (int i = 0; i < NN_INPUTS; ++i)
+            sum += inp[i] * network[offset+h*NN_INPUTS+i];
+
+        hidden[h] = activate(sum);
+    }
+
+    // Output layer
+    float result[NN_OUTPUTS];
+    for (int o = 0; o < NN_OUTPUTS; ++o)
+    {
+        float sum = network[offset+(NN_INPUTS*NN_HIDDEN + NN_HIDDEN + NN_HIDDEN*NN_OUTPUTS)+o];
+        for (int h = 0; h < NN_HIDDEN; ++h)
+            sum += hidden[h] * network[offset+(NN_INPUTS*NN_HIDDEN + NN_HIDDEN)+o*NN_HIDDEN+h];
+
+        result[o] = activate(sum);
+    }
+
+
+    return result;
+}
+
+void update_one(uint idx)
+{
+    Agent agent = agents[idx];
+
+    agent.age += 1;
+    agent.survivalDuration += 1;
+    if (agent.type == 0 && agent.state == 1 && agent.age > 0)
+        agent.state = 0;
+       
+    agents[idx] = agent;
+    if (agent.state == 1)
+        return;
+
+    if (agent.type > 0)
+    {
+        float[] inp = prepare_input(agent);
+        float[] res = evaluate_network(inp, agent.nnOffset);
+
+        //angle
+        agent.angle += 0.2 * res[0];
+        agent.angle = mod(agent.angle + M_PI, 2*M_PI) - M_PI;
+
+        //velocity
+        float maxVelocity = agent.type == 1 ? config.blueMaxVelocity : config.redMaxVelocity;
+        float velocity = maxVelocity * 0.5 * (res[1] + 1);
+        agent.position += vec2(velocity*cos(agent.angle),velocity*sin(agent.angle));
+
+        //memory
+        agent.memory0 = mix(agent.memory0, res[2], 0.08); //faster memory
+        agent.memory0 = clamp(agent.memory0, -1.0, 1.0);
+        agent.memory1 = mix(agent.memory1, res[3], 0.02); //slower memory
+        agent.memory1 = clamp(agent.memory1, -1.0, 1.0);
+
+        float energyConsumed = (velocity / maxVelocity) * (velocity / maxVelocity);
+        agent.energy -= energyConsumed;
+        agent.energySpent += energyConsumed;
+    }
+    
+    torus(agent.position);
+    ivec2 newPixel = ivec2(uint(agent.position.x), uint(agent.position.y));
+    if (newPixel != agent.currPixel)
+    {
+        agent.prevPixel = agent.currPixel;
+        agent.currPixel = newPixel;
+    }
+
+    if (agent.type == 2)
+    {
+        float preyScent = imageLoad(inBlue, agent.currPixel).r;
+        agent.nearPrey += preyScent * preyScent;
+    }
+
+    agents[idx] = agent;
+
+}
+
+void main()
+{
+    uint idx = gl_GlobalInvocationID.x;
+
+    if (idx >=0 && idx < config.agentsCount) 
+    {
+        update_one(idx);
+        if (idx == config.trackedIdx)
+            tracked = agents[idx];
+    }
+}

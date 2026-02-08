@@ -1,0 +1,83 @@
+﻿#version 430 core
+
+#pragma optimize(on)
+
+layout(local_size_x = {LocalSizeX}) in;
+
+struct ShaderConfig {
+    int agentsCount;
+    int width;
+    int height;
+    float dt;
+    float t;
+    int generationDuration;
+    float initialEnergy;
+    float plantEnergy;
+    float killEnergy;
+    int plantRegrowDuration;
+    int trackedIdx;
+    float blueMaxVelocity;
+    float redMaxVelocity;
+    int pad0;
+    int pad1;
+    int pad2;
+};
+
+struct Agent
+{
+    vec2 position;
+    float angle;
+    uint type;
+    float energy;
+    uint age;
+    int state;
+    int nnOffset;
+    int meals;
+    int deaths;
+    float energySpent;
+    int flag;
+    ivec2 currPixel;
+    ivec2 prevPixel;
+    float memory0;
+    float memory1;
+    float nearPrey;
+    uint survivalDuration;
+};
+
+layout(std430, binding = 0) buffer ConfigBuffer {
+    ShaderConfig config;
+};
+
+layout(std430, binding = 1) buffer AgentsBuffer {
+    Agent agents[];
+};
+
+layout(rgba32f, binding = 2) uniform image2D outGreen;
+layout(rgba32f, binding = 3) uniform image2D outBlue;
+layout(rgba32f, binding = 4) uniform image2D outRed;
+
+void update_one(uint idx)
+{
+    Agent agent = agents[idx];
+    if (agent.state == 1)
+        return;
+
+    if (agent.type == 0)
+        imageStore(outGreen, agent.currPixel, vec4(1)); 
+    else if (agent.type == 1)
+        imageStore(outBlue, agent.currPixel, vec4(1));
+    else if (agent.type == 2)
+        imageStore(outRed, agent.currPixel, vec4(1));
+
+
+}
+
+void main()
+{
+    uint idx = gl_GlobalInvocationID.x;
+
+    if (idx >=0 && idx < config.agentsCount) 
+    {
+        update_one(idx);
+    }
+}

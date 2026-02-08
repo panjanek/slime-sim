@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="shaders\move.comp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="shaders\blur.frag" />
+    <EmbeddedResource Include="shaders\blur.vert" />
+    <EmbeddedResource Include="shaders\display.frag" />
+    <EmbeddedResource Include="shaders\display.vert" />
+    <EmbeddedResource Include="shaders\collision.comp" />
+    <EmbeddedResource Include="shaders\mark_tail.comp" />
+    <EmbeddedResource Include="shaders\mark_head.comp" />
+    <EmbeddedResource Include="shaders\points.frag" />
+    <EmbeddedResource Include="shaders\points.vert" />
+    <EmbeddedResource Include="shaders\move.comp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>
