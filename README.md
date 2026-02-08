@@ -1,2 +1,2 @@
-# slime-sim
-"Slime simulation"
+# Slime simulation using GPU shaders
+Work in progress
