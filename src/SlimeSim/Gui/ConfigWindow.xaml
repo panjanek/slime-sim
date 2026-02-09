@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SlimeSim.Gui"
         mc:Ignorable="d"
         Title="PredPreySim details" 
-        Width="1200"
+        Width="400"
         Height="400"  
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterOwner"
@@ -57,15 +57,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
@@ -73,59 +67,16 @@
                 <Button Name="loadButton" Grid.Row="0" Grid.Column="1">Load</Button>
                 <Button Name="newButton" Grid.Row="0" Grid.Column="2">New</Button>
 
-                
-                <ComboBox Name="evolveCombo" Grid.Row="0" Grid.Column="3">
-                    <ComboBoxItem Tag="0">Stop evolution</ComboBoxItem>
-                    <ComboBoxItem Tag="5000" IsSelected="True">Evolve each 5k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="10000">Evolve each 10k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="15000">Evolve each 15k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="20000">Evolve each 20k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="30000">Evolve each 30k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="50000">Evolve each 50k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="100000">Evolve each 100k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="200000">Evolve each 200k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="300000">Evolve each 300k steps</ComboBoxItem>
-                    <ComboBoxItem Tag="500000">Evolve each 500k steps</ComboBoxItem>
-                </ComboBox>
-                <ComboBox Name="mutationMagnitudeCombo" Grid.Row="0" Grid.Column="4">
-                    <ComboBoxItem Tag="0.5">Mutate slightly</ComboBoxItem>
-                    <ComboBoxItem Tag="1">Mutate very weakly</ComboBoxItem>
-                    <ComboBoxItem Tag="2">Mutate weakly</ComboBoxItem>
-                    <ComboBoxItem Tag="4" IsSelected="True">Mutate with medium magnitude</ComboBoxItem>
-                    <ComboBoxItem Tag="8">Mutate strongly</ComboBoxItem>
-                    <ComboBoxItem Tag="16">Mutate very strongly</ComboBoxItem>
-                </ComboBox>
-                <ComboBox Name="mutationFrequencyCombo" Grid.Row="0" Grid.Column="5">
-                    <ComboBoxItem Tag="0.5">Mutate occasionaly</ComboBoxItem>
-                    <ComboBoxItem Tag="1">Mutate very rarely</ComboBoxItem>
-                    <ComboBoxItem Tag="2">Mutate rarely</ComboBoxItem>
-                    <ComboBoxItem Tag="4" IsSelected="True">Mutate with medium frequency</ComboBoxItem>
-                    <ComboBoxItem Tag="8">Mutate frequently</ComboBoxItem>
-                    <ComboBoxItem Tag="16">Mutate very frequently</ComboBoxItem>
-                </ComboBox>
-                <ComboBox Name="crossingoverFrequencyCombo" Grid.Row="0" Grid.Column="6">
-                    <ComboBoxItem Tag="0.05">Crossover 5%</ComboBoxItem>
-                    <ComboBoxItem Tag="0.1">Crossover 10%</ComboBoxItem>
-                    <ComboBoxItem Tag="0.2" IsSelected="True">Crossover 20%</ComboBoxItem>
-                    <ComboBoxItem Tag="0.3">Crossover 30%</ComboBoxItem>
-                    <ComboBoxItem Tag="0.4">Crossover 40%</ComboBoxItem>
-                    <ComboBoxItem Tag="0.5">Crossover 50%</ComboBoxItem>
-                </ComboBox>
-
                 <!-- row below graph -->
-                <ComboBox Name="navigationCombo" Grid.Row="2" Grid.Column="0">
+                <ComboBox Name="navigationCombo" Grid.Row="1" Grid.Column="0">
                     <ComboBoxItem Tag="0" IsSelected="True">Free mouse navigation</ComboBoxItem>
-                    <ComboBoxItem Tag="1">Follow best blue</ComboBoxItem>
-                    <ComboBoxItem Tag="2">Follow best red</ComboBoxItem>
+                    <ComboBoxItem Tag="1">Follow green</ComboBoxItem>
+                    <ComboBoxItem Tag="2">Follow blue</ComboBoxItem>
+                    <ComboBoxItem Tag="2">Follow red</ComboBoxItem>
                 </ComboBox>
-                <CheckBox Name="pointersCheckbox" Grid.Row="2" Grid.Column="1" IsChecked="True" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White">Show pointers</CheckBox>
-                <CheckBox Name="memoryCheckbox" Grid.Row="2" Grid.Column="2" IsChecked="False" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White">Show memory</CheckBox>
-                <CheckBox Name="maxSpeedCheckbox" Grid.Row="2" Grid.Column="3" IsChecked="False" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White">Run at max speed</CheckBox>
+                <CheckBox Name="pointersCheckbox" Grid.Row="1" Grid.Column="1" IsChecked="True" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White">Show pointers</CheckBox>
 
-                <ProgressBar Name="memory0Bar" Grid.Row="0" Grid.Column="7" Minimum="-1" Maximum="1" Value="-1" Height="8" Width="120" IsIndeterminate="False" Background="Black"/>
-                <ProgressBar Name="memory1Bar" Grid.Row="2" Grid.Column="7" Minimum="-1" Maximum="1" Value="-1" Height="8" Width="120" IsIndeterminate="False" Background="Black"/>
-                
-                <ToggleButton Name="recordButton" Grid.Row="2" Grid.Column="4" ToolTip="Record frames as PNG files to given folder">
+                <ToggleButton Name="recordButton" Grid.Row="1" Grid.Column="2" ToolTip="Record frames as PNG files to given folder">
                     <ToggleButton.Style>
                         <Style TargetType="ToggleButton">
                             <Setter Property="Content">
@@ -153,19 +104,6 @@
                         </Style>
                     </ToggleButton.Style>
                 </ToggleButton>
-
-
-
-                <!-- graph controls -->
-                <CheckBox Name="commonScaleCheckbox" Grid.Row="2" Grid.Column="5"  HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White">Common scale</CheckBox>
-                <ComboBox Name="graphHistoryCombo" Grid.Row="2" Grid.Column="6">
-                    <ComboBoxItem Tag="50">Show 50</ComboBoxItem>
-                    <ComboBoxItem Tag="100" IsSelected="True">Show 100</ComboBoxItem>
-                    <ComboBoxItem Tag="300">Show 300</ComboBoxItem>
-                    <ComboBoxItem Tag="500">Show 500</ComboBoxItem>
-                    <ComboBoxItem Tag="1000">Show 1000</ComboBoxItem>
-                    <ComboBoxItem Tag="2000">Show 2000</ComboBoxItem>
-                </ComboBox>
 
             </Grid>
         </DockPanel>

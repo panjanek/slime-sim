@@ -152,10 +152,6 @@ namespace SlimeSim.Gui
         public void SetControls()
         {
             updating = true;
-            WpfUtil.SelectByIntTag(evolveCombo, app.simulation.shaderConfig.generationDuration);
-            WpfUtil.SelectByDoubleTag(mutationMagnitudeCombo, app.simulation.mutationMagnitude);
-            WpfUtil.SelectByDoubleTag(mutationFrequencyCombo, app.simulation.mutationFrequency);
-            WpfUtil.SelectByDoubleTag(crossingoverFrequencyCombo, app.simulation.crossingOverFrequency);
             updating = false;
         }
 
