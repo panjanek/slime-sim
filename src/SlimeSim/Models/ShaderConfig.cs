@@ -13,7 +13,7 @@ namespace SlimeSim.Models
         public ShaderConfig() { }
 
         [FieldOffset(0)]
-        public int agentsCount = 1000000;
+        public int agentsCount = 300000; //1000000;
 
         [FieldOffset(4)]
         public int width = 1920 * 1;
