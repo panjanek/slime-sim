@@ -95,7 +95,7 @@ namespace SlimeSim.Gpu
             GL.Uniform2(dispMinLocation, worldMin);
             GL.Uniform2(dispMaxLocation, worldMax);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
+            
 
             //draw points
             if (showPointers)
