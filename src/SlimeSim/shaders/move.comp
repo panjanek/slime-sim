@@ -181,9 +181,9 @@ void update_one(uint idx)
 
         float w = (agent.type == t) ? 2.0 : -2.0;
 
-        angleForce += delta * w * 1;
+        //angleForce += delta * w * 1;
        
-        //angleDelta += tanh(delta * w )*1.0;
+        angleForce += tanh(delta * w )*1.0;
 
         if (agent.type == t)
           activity = max(front, max(left, right));
