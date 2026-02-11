@@ -57,7 +57,7 @@ namespace SlimeSim.Models
         public float memory1;
 
         [FieldOffset(72)]
-        public float nearPrey;
+        public float deltaAngle;
 
         [FieldOffset(76)]
         public uint survivalDuration;

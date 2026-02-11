@@ -17,7 +17,7 @@ struct Agent
     ivec2 prevPixel;
     float memory0;
     float memory1;
-    float nearPrey;
+    float deltaAngle;
     uint survivalDuration;
 };
 

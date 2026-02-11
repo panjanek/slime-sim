@@ -29,7 +29,7 @@ namespace SlimeSim.Models
 
         public float decayRed = 0.98f;
 
-        public float decayGreen = 0.98f;
+        public float decayGreen = 0.97f;
 
         public float decayBlue = 0.98f;
 
@@ -57,7 +57,7 @@ namespace SlimeSim.Models
             shaderConfig = new ShaderConfig();
             agents = new Agent[shaderConfig.agentsCount];
             InitRandomly();
-            var blurType = "Default"; //"Strong"; //"Default";
+            var blurType = "Uniform2"; //"Strong"; //"Default" //"Uniform2";
             kernelRed = MathUtil.Normalize(Blurs.AvailableKernels[blurType], decayRed);
             kernelGreen = MathUtil.Normalize(Blurs.AvailableKernels[blurType], decayGreen);
             kernelBlue = MathUtil.Normalize(Blurs.AvailableKernels[blurType], decayBlue);
@@ -99,9 +99,18 @@ namespace SlimeSim.Models
                 agents[i] = new Agent();
                 agents[i].flag = 1;
                 agents[i].type = rnd.Next(3);
-                //agents[i].type = 0;
-                agents[i].angle = (float)(2 * Math.PI * rnd.NextDouble());
-                agents[i].SetPosition(new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble())));
+                agents[i].type = 0;
+               
+
+                var radius = rnd.NextDouble() * (shaderConfig.height * 0.4);
+                var fi = rnd.NextDouble() * Math.PI * 2;
+                var x = shaderConfig.width / 2 + radius * Math.Cos(fi);
+                var y = shaderConfig.height / 2 + radius * Math.Sin(fi);
+                agents[i].SetPosition(new Vector2((float)x, (float)y));
+                agents[i].angle = (float)(Math.PI +fi);
+
+                //agents[i].SetPosition(new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble())));
+                //agents[i].angle = (float)(2 * Math.PI * rnd.NextDouble());
             }
 
             network = new float[9];

@@ -40,7 +40,7 @@ struct Agent
     ivec2 prevPixel;
     float memory0;
     float memory1;
-    float nearPrey;
+    float deltaAngle;
     uint survivalDuration;
 };
 
@@ -141,7 +141,7 @@ float[9] prepare_input(Agent agent)
 {
     float inp[9];
 
-    float dev = 0.1;
+    float dev = 0.25;
 
     float angles[3] = float[] ( -dev*M_PI , 0, +dev*M_PI );
     for(int a=0; a<3; a++)
@@ -163,7 +163,9 @@ void update_one(uint idx)
     float[] inp = prepare_input(agent);
 
 
-    float angleDelta = 0;
+    float angleForce = 0;
+
+    float activity = 0;
 
     for(int t=0; t<3; t++)
     {
@@ -177,11 +179,14 @@ void update_one(uint idx)
         float delta = abs(d1) > abs(d2) ? d1 : d2;
 
 
-        float w = (agent.type == t) ? 3.0 : -3.0;
+        float w = (agent.type == t) ? 2.0 : -2.0;
 
-        angleDelta += delta * w;
+        angleForce += delta * w * 1;
        
         //angleDelta += tanh(delta * w )*1.0;
+
+        if (agent.type == t)
+          activity = max(front, max(left, right));
 
     }
 
@@ -189,14 +194,20 @@ void update_one(uint idx)
     float random01 = get_random_float_01(agent, 100037);
     float random0 = (0.5 - random01);
 
-    angleDelta += 0.05 * random0;
+    angleForce += 0.15 * random0;
 
     //angle
-    agent.angle += angleDelta;
+    
+    agent.deltaAngle += angleForce * 1.5;
+    agent.deltaAngle *= 0.8;
+    agent.angle += agent.deltaAngle * 0.3;
     agent.angle = mod(agent.angle + M_PI, 2*M_PI) - M_PI;
 
+    
 
-    float velocity = 0.8;
+
+    float velocity = 0.3;
+    //float velocity = 0.1 + 0.2 * clamp(activity, 0.0, 1.0);
     agent.position += vec2(velocity*cos(agent.angle),velocity*sin(agent.angle));
     
 
